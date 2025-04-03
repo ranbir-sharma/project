@@ -110,6 +110,7 @@ if __name__ == '__main__':
             # set entity to specify your username or team name
             # entity="qihangz-work",
             # set the wandb project where this run will be logged
+            # "Amazon-GPU-CPEN455HW"
             project="CPEN455HW",
             # group=Group Name
             name=job_name,
