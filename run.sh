@@ -22,7 +22,7 @@ python pcnn_train.py \
 --dataset cpen455 \
 --nr_resnet 5 \
 --nr_filters 80 \
---nr_logistic_mix 5 \
+--nr_logistic_mix 7 \
 --lr_decay 0.999995 \
 --max_epochs 500 \
 --en_wandb True \
