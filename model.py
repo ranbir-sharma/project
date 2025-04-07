@@ -1,7 +1,7 @@
 import torch.nn as nn
 from layers import *
 
-
+embedding_dim= 128
 class PixelCNNLayer_up(nn.Module):
     def __init__(self, nr_resnet, nr_filters, resnet_nonlinearity, condition_dim=None):
         super(PixelCNNLayer_up, self).__init__()

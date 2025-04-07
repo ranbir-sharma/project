@@ -13,7 +13,6 @@ from pprint import pprint
 import argparse
 from pytorch_fid.fid_score import calculate_fid_given_paths
 
-
 def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, mode = 'training'):
     if mode == 'training':
         model.train()
@@ -24,9 +23,16 @@ def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, m
     loss_tracker = mean_tracker()
     
     for batch_idx, item in enumerate(tqdm(data_loader)):
-        model_input, _ = item
+        model_input, labels = item
         model_input = model_input.to(device)
-        model_output = model(model_input)
+
+        if mode != 'test':
+            labels = torch.tensor([my_bidict[label] for label in labels], dtype=torch.long)
+            labels = labels.to(device)
+            model_output = model(model_input, labels=labels)
+        else:
+            model_output = model(model_input)
+        
         loss = loss_op(model_input, model_output)
         loss_tracker.update(loss.item()/deno)
         if mode == 'training':
@@ -123,7 +129,7 @@ if __name__ == '__main__':
     #Reminder: if you have patience to read code line by line, you should notice this comment. here is the reason why we set num_workers to 0:
     #In order to avoid pickling errors with the dataset on different machines, we set num_workers to 0.
     #If you are using ubuntu/linux/colab, and find that loading data is too slow, you can set num_workers to 1 or even bigger.
-    kwargs = {'num_workers':0, 'pin_memory':True, 'drop_last':True}
+    kwargs = {'num_workers':2, 'pin_memory':True, 'drop_last':True}
 
     # set data
     if "mnist" in args.dataset:
@@ -183,7 +189,7 @@ if __name__ == '__main__':
 
     model = PixelCNN(nr_resnet=args.nr_resnet, nr_filters=args.nr_filters, 
                 input_channels=input_channels, nr_logistic_mix=args.nr_logistic_mix,
-                num_classes=4, embedding_dim=128)
+                num_classes=len(my_bidict), embedding_dim=embedding_dim)
     model = model.to(device)
 
     if args.load_params:
@@ -225,7 +231,12 @@ if __name__ == '__main__':
         
         if epoch % args.sampling_interval == 0:
             print('......sampling......')
-            sample_t = sample(model, args.sample_batch_size, args.obs, sample_op)
+            
+            num_classes = len(my_bidict)  # 4
+            samples_per_class = args.sample_batch_size // num_classes  # 4
+            labels = torch.arange(num_classes).repeat_interleave(samples_per_class).to(device)
+            
+            sample_t = sample(model, args.sample_batch_size, args.obs, sample_op, condition=labels)
             sample_t = rescaling_inv(sample_t)
             save_images(sample_t, args.sample_dir)
             sample_result = wandb.Image(sample_t, caption="epoch {}".format(epoch))
