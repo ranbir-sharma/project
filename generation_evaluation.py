@@ -60,7 +60,12 @@ if __name__ == "__main__":
         embedding_dim=embedding_dim)
     
     model = model.to(device)
-    model.load_state_dict(torch.load("models/pcnn_cpen455_from_scratch_499.pth"))
+    model_path = os.path.join(os.path.dirname(__file__), 'models/pcnn_cpen455_from_scratch_349.pth')
+    if os.path.exists(model_path):
+        model.load_state_dict(torch.load(model_path))
+        print('model parameters loaded')
+    else:
+        raise FileNotFoundError(f"Model file not found at {model_path}")
     model = model.eval()
     #End of your code
     
