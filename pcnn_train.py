@@ -10,6 +10,7 @@ from model import *
 from dataset import *
 from tqdm import tqdm
 from pprint import pprint
+from classification_evaluation import *
 import argparse
 from pytorch_fid.fid_score import calculate_fid_given_paths
 
@@ -117,7 +118,7 @@ if __name__ == '__main__':
             # entity="qihangz-work",
             # set the wandb project where this run will be logged
             # "Amazon-GPU-CPEN455HW"
-            project="CPEN455HW",
+            project="Amazon-GPU-CPEN455HW",
             # group=Group Name
             name=job_name,
         )
@@ -129,7 +130,7 @@ if __name__ == '__main__':
     #Reminder: if you have patience to read code line by line, you should notice this comment. here is the reason why we set num_workers to 0:
     #In order to avoid pickling errors with the dataset on different machines, we set num_workers to 0.
     #If you are using ubuntu/linux/colab, and find that loading data is too slow, you can set num_workers to 1 or even bigger.
-    kwargs = {'num_workers':2, 'pin_memory':True, 'drop_last':True}
+    kwargs = {'num_workers':4, 'pin_memory':True, 'drop_last':True}
 
     # set data
     if "mnist" in args.dataset:
@@ -198,8 +199,8 @@ if __name__ == '__main__':
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=args.lr_decay)
-    
-    for epoch in tqdm(range(args.max_epochs)):
+    past_epoch = 250
+    for epoch in tqdm(range(past_epoch,args.max_epochs)):
         train_or_test(model = model, 
                       data_loader = train_loader, 
                       optimizer = optimizer, 
@@ -258,3 +259,18 @@ if __name__ == '__main__':
             if not os.path.exists("models"):
                 os.makedirs("models")
             torch.save(model.state_dict(), 'models/{}_{}.pth'.format(model_name, epoch))
+            # Start the process to get the accuracy
+            print("Getting Validation Accuracy")
+            acc = classifier(model = model, data_loader = val_loader, device = device)
+            print(f"Accuracy: {acc}")
+            wandb.log({
+                "Validation Accuracy": acc,
+                "Epoch": epoch
+            })
+            print("Getting Train Accuracy")
+            acc = classifier(model = model, data_loader = train_loader, device = device)
+            print(f"Accuracy: {acc}")
+            wandb.log({
+                "Train Accuracy": acc,
+                "Epoch": epoch
+            })

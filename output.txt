@@ -1,0 +1,67 @@
+{'batch_size': 16,
+ 'data_dir': 'data',
+ 'dataset': 'cpen455',
+ 'en_wandb': True,
+ 'load_params': None,
+ 'lr': 0.0002,
+ 'lr_decay': 0.999995,
+ 'max_epochs': 800,
+ 'nr_filters': 40,
+ 'nr_logistic_mix': 7,
+ 'nr_resnet': 5,
+ 'obs': (3, 32, 32),
+ 'sample_batch_size': 16,
+ 'sample_dir': 'samples',
+ 'sampling_interval': 50,
+ 'save_dir': 'models',
+ 'save_interval': 50,
+ 'seed': 1,
+ 'tag': 'default'}
+......sampling......
+Warning: batch size is bigger than the data size. Setting batch size to data size
+Dimension 192 works! fid score: 37.22171701673207
+Getting Validation Accuracy
+Accuracy: 0.3828125
+Getting Train Accuracy
+Accuracy: 0.3791023166023166
+......sampling......
+Warning: batch size is bigger than the data size. Setting batch size to data size
+Dimension 192 works! fid score: 37.18688917519667
+Getting Validation Accuracy
+Accuracy: 0.654296875
+Getting Train Accuracy
+Accuracy: 0.6527509652509652
+......sampling......
+Warning: batch size is bigger than the data size. Setting batch size to data size
+Dimension 192 works! fid score: 30.42331141891777
+Getting Validation Accuracy
+Accuracy: 0.580078125
+Getting Train Accuracy
+Accuracy: 0.589527027027027
+......sampling......
+Warning: batch size is bigger than the data size. Setting batch size to data size
+Dimension 192 works! fid score: 38.45464394881395
+Getting Validation Accuracy
+Accuracy: 0.740234375
+Getting Train Accuracy
+Accuracy: 0.7980212355212355
+......sampling......
+Warning: batch size is bigger than the data size. Setting batch size to data size
+Dimension 192 works! fid score: 38.303426381295075
+Getting Validation Accuracy
+Accuracy: 0.794921875
+Getting Train Accuracy
+Accuracy: 0.8786196911196911
+......sampling......
+Warning: batch size is bigger than the data size. Setting batch size to data size
+Dimension 192 works! fid score: 30.183406444973862
+Getting Validation Accuracy
+Accuracy: 0.4921875
+Getting Train Accuracy
+Accuracy: 0.6081081081081081
+......sampling......
+Warning: batch size is bigger than the data size. Setting batch size to data size
+Dimension 192 works! fid score: 38.31682425488487
+[1;34mwandb[0m: 
+[1;34mwandb[0m: 🚀 View run [33mPCNN_Training_dataset:cpen455_default[0m at: [34mhttps://wandb.ai/ranbirs963-university-of-british-columbia/Amazon-GPU-CPEN455HW/runs/w5rgb7km[0m
+[1;34mwandb[0m: Find logs at: [1;35mwandb/run-20250409_144052-w5rgb7km/logs[0m
