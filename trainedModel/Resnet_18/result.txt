@@ -1,0 +1,12 @@
+For 189- 
+Train Accuracy: 100.00%
+Validation Accuracy: 88.63%
+Test score - 
+Submission successful! Accuracy: 87.64%, F1: 87.63%
+
+
+For 199 - 
+Train Accuracy: 99.23%
+Validation Accuracy: 85.93%
+Test score - 
+Submission successful! Accuracy: 87.07%, F1: 87.06%
