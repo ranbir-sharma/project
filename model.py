@@ -52,7 +52,7 @@ class PixelCNNLayer_down(nn.Module):
 
 class PixelCNN(nn.Module):
     def __init__(self, nr_resnet=5, nr_filters=80, nr_logistic_mix=10,
-                    resnet_nonlinearity='concat_elu', input_channels=3, num_classes=None, embedding_dim=None):
+                    resnet_nonlinearity='concat_elu', input_channels=3, num_classes=None, embedding_dim=None, fusion="gated"):
         super(PixelCNN, self).__init__()
         if resnet_nonlinearity == 'concat_elu' :
             self.resnet_nonlinearity = lambda x : concat_elu(x)
@@ -83,14 +83,25 @@ class PixelCNN(nn.Module):
 
         self.upsize_ul_stream = nn.ModuleList([down_right_shifted_deconv2d(nr_filters,
                                                     nr_filters, stride=(2,2)) for _ in range(2)])
-
-        self.u_init = down_shifted_conv2d(input_channels + 1, nr_filters, filter_size=(2,3),
+        
+        if fusion == "early":
+            input_channels = input_channels + 1 + embedding_dim
+            self.u_init = down_shifted_conv2d(input_channels, nr_filters, filter_size=(2,3),
                         shift_output_down=True)
 
-        self.ul_init = nn.ModuleList([down_shifted_conv2d(input_channels + 1, nr_filters,
+            self.ul_init = nn.ModuleList([down_shifted_conv2d(input_channels, nr_filters,
                                             filter_size=(1,3), shift_output_down=True),
-                                       down_right_shifted_conv2d(input_channels + 1, nr_filters,
+                                       down_right_shifted_conv2d(input_channels, nr_filters,
                                             filter_size=(2,1), shift_output_right=True)])
+        else:
+
+            self.u_init = down_shifted_conv2d(input_channels + 1, nr_filters, filter_size=(2,3),
+                            shift_output_down=True)
+
+            self.ul_init = nn.ModuleList([down_shifted_conv2d(input_channels + 1, nr_filters,
+                                                filter_size=(1,3), shift_output_down=True),
+                                        down_right_shifted_conv2d(input_channels + 1, nr_filters,
+                                                filter_size=(2,1), shift_output_right=True)])
 
         num_mix = 3 if self.input_channels == 1 else 10
         self.nin_out = nin(nr_filters, num_mix * nr_logistic_mix)
@@ -99,6 +110,7 @@ class PixelCNN(nn.Module):
         # Add a label embedding if conditional generation is desired.
         if num_classes is not None and embedding_dim is not None:
             self.label_embedding = nn.Embedding(num_classes, embedding_dim)
+            self.fusion = fusion
         else:
             self.label_embedding = None
 
@@ -109,7 +121,12 @@ class PixelCNN(nn.Module):
         condition = None
         if labels is not None and self.label_embedding is not None:
             condition = self.label_embedding(labels)
-        
+            if self.fusion == "early":
+                cond_exp = condition.unsqueeze(-1).unsqueeze(-1)  # [B, D, 1, 1]
+                cond_exp = cond_exp.expand(-1, -1, x.shape[2], x.shape[3])  # [B, D, H, W]
+                x = torch.cat([x, cond_exp], dim=1)  # concat on channel dimension
+                condition = None
+
         
         # similar as done in the tf repo :
         if self.init_padding is not sample:

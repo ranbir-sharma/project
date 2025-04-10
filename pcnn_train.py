@@ -118,7 +118,7 @@ if __name__ == '__main__':
             # entity="qihangz-work",
             # set the wandb project where this run will be logged
             # "Amazon-GPU-CPEN455HW"
-            project="Amazon-GPU-CPEN455HW",
+            project="CPEN455HW",
             # group=Group Name
             name=job_name,
         )
@@ -190,7 +190,7 @@ if __name__ == '__main__':
 
     model = PixelCNN(nr_resnet=args.nr_resnet, nr_filters=args.nr_filters, 
                 input_channels=input_channels, nr_logistic_mix=args.nr_logistic_mix,
-                num_classes=len(my_bidict), embedding_dim=embedding_dim)
+                num_classes=len(my_bidict), embedding_dim=embedding_dim, fusion="early")
     model = model.to(device)
 
     if args.load_params:
@@ -199,7 +199,7 @@ if __name__ == '__main__':
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=args.lr_decay)
-    past_epoch = 250
+    past_epoch = 0
     for epoch in tqdm(range(past_epoch,args.max_epochs)):
         train_or_test(model = model, 
                       data_loader = train_loader, 
