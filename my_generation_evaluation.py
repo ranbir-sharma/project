@@ -21,7 +21,7 @@ import argparse
 # This is a demonstration of how to call the sample function, feel free to modify it
 # You should modify this sample function to get the generated images from your model
 # You should save the generated images to the gen_data_dir, which is fixed as 'samples'
-sample_op = lambda x : sample_from_discretized_mix_logistic(x, 5)
+sample_op = lambda x : sample_from_discretized_mix_logistic(x, 7)
 def my_sample(model, gen_data_dir, sample_batch_size = 25, obs = (3,32,32), sample_op = sample_op):
     for label, label_value in my_bidict.items():
         print(f"Label: {label}")
@@ -51,8 +51,23 @@ if __name__ == "__main__":
 
     #TODO: Begin of your code
     #Load your model and generate images in the gen_data_dir, feel free to modify the model
-    model = PixelCNN(nr_resnet=3, nr_filters=80, input_channels=3, nr_logistic_mix=5)
+    model = PixelCNN(
+        nr_resnet=5,
+        nr_filters=40, 
+        input_channels=3, 
+        nr_logistic_mix=7,
+        num_classes=len(my_bidict), 
+        embedding_dim=embedding_dim)
+    
     model = model.to(device)
+    model_path = os.path.join(os.path.dirname(__file__), 'models/pcnn_cpen455_from_scratch_249.pth')
+    print(model_path)
+    if os.path.exists(model_path):
+        model.load_state_dict(torch.load(model_path))
+        print('model parameters loaded')
+    else:
+        raise FileNotFoundError(f"Model file not found at {model_path}")
+    
     model = model.eval()
     #End of your code
     
