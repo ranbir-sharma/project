@@ -1,5 +1,16 @@
 # CPEN455 2024 W2 Course Project: Conditional PixelCNN++ for Image Classification
 
+In order to execute the two scripts follow this guide 
+```
+# To run the classification evaluation script 
+python classification_evaluation.py
+
+# To run the generation evaluation script 
+python generation_evaluation.py
+
+# To run the resnet model for classification(train, test and validation)
+python resnet_18_val.py 
+```
 
 This repo is for CPEN 455 course project 2024 Winter Term 2 at UBC. **The goal of this project is to implement the Conditional PixelCNN++ model and train it on the given dataset.** After that, the model can both generate new images and classify the given images. **For grading, we evaluate the model based on both the generation performance and classification performance.**
 

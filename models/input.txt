@@ -1,0 +1,23 @@
+{'batch_size': 32,
+ 'data_dir': 'data',
+ 'dataset': 'cpen455',
+ 'en_wandb': True,
+ 'load_params': None,
+ 'lr': 0.0002,
+ 'lr_decay': 0.999995,
+ 'max_epochs': 500,
+ 'nr_filters': 80,
+ 'nr_logistic_mix': 5,
+ 'nr_resnet': 3,
+ 'obs': (3, 32, 32),
+ 'sample_batch_size': 16,
+ 'sample_dir': 'samples',
+ 'sampling_interval': 50,
+ 'save_dir': 'models',
+ 'save_interval': 50,
+ 'seed': 1,
+ 'tag': 'default'}
+
+ Training accuracy - 92.52224092329887
+ Validation accuracy - 77.26%
+ Test accuracy -  Submission successful! Accuracy: 78.19%, F1: 77.90%
