@@ -32,7 +32,8 @@ def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, m
             labels = labels.to(device)
             model_output = model(model_input, labels=labels)
         else:
-            model_output = model(model_input)
+            labels = torch.zeros(model_input.size(0), dtype=torch.long).to(device)
+            model_output = model(model_input, labels=labels)
         
         loss = loss_op(model_input, model_output)
         loss_tracker.update(loss.item()/deno)
@@ -118,9 +119,10 @@ if __name__ == '__main__':
             # entity="qihangz-work",
             # set the wandb project where this run will be logged
             # "Amazon-GPU-CPEN455HW"
-            project="CPEN455HW",
+            project="Amazon-GPU-CPEN455HW",
             # group=Group Name
-            name=job_name,
+            # name=job_name,
+            name="JointFusion",
         )
         wandb.config.current_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         wandb.config.update(args)
@@ -190,7 +192,7 @@ if __name__ == '__main__':
 
     model = PixelCNN(nr_resnet=args.nr_resnet, nr_filters=args.nr_filters, 
                 input_channels=input_channels, nr_logistic_mix=args.nr_logistic_mix,
-                num_classes=len(my_bidict), embedding_dim=embedding_dim, fusion="early")
+                num_classes=len(my_bidict), embedding_dim=embedding_dim, fusion="joint")
     model = model.to(device)
 
     if args.load_params:

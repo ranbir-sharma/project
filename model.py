@@ -84,7 +84,7 @@ class PixelCNN(nn.Module):
         self.upsize_ul_stream = nn.ModuleList([down_right_shifted_deconv2d(nr_filters,
                                                     nr_filters, stride=(2,2)) for _ in range(2)])
         
-        if fusion == "early":
+        if fusion == "early" or fusion == "joint":
             input_channels = input_channels + 1 + embedding_dim
             self.u_init = down_shifted_conv2d(input_channels, nr_filters, filter_size=(2,3),
                         shift_output_down=True)
@@ -111,6 +111,8 @@ class PixelCNN(nn.Module):
         if num_classes is not None and embedding_dim is not None:
             self.label_embedding = nn.Embedding(num_classes, embedding_dim)
             self.fusion = fusion
+            if fusion == "late" or fusion == "joint":
+                self.condition_proj = nn.Linear(embedding_dim, nr_filters)
         else:
             self.label_embedding = None
 
@@ -121,11 +123,18 @@ class PixelCNN(nn.Module):
         condition = None
         if labels is not None and self.label_embedding is not None:
             condition = self.label_embedding(labels)
-            if self.fusion == "early":
-                cond_exp = condition.unsqueeze(-1).unsqueeze(-1)  # [B, D, 1, 1]
+            if self.fusion == "early" or self.fusion == "joint":
+                tmp_condition = condition.clone()
+                cond_exp = tmp_condition.unsqueeze(-1).unsqueeze(-1)  # [B, D, 1, 1]
                 cond_exp = cond_exp.expand(-1, -1, x.shape[2], x.shape[3])  # [B, D, H, W]
                 x = torch.cat([x, cond_exp], dim=1)  # concat on channel dimension
-                condition = None
+                # print(f"Dimension of x {x.shape}")
+                if self.fusion == "early":
+                    condition = None
+            if self.fusion == "late" or self.fusion == "joint":
+                late_condition = condition.clone()
+                if self.fusion == "late":
+                    condition = None
 
         
         # similar as done in the tf repo :
@@ -168,6 +177,13 @@ class PixelCNN(nn.Module):
                 u  = self.upsize_u_stream[i](u)
                 ul = self.upsize_ul_stream[i](ul)
 
+        if (self.fusion == "late" or self.fusion == "joint") and late_condition is not None:
+            # print("Late is working")
+            cond_proj = self.condition_proj(late_condition)  # shape: [B, F]
+            cond_proj = cond_proj.unsqueeze(-1).unsqueeze(-1)  # shape: [B, F, 1, 1]
+            cond_proj = cond_proj.expand(-1, -1, ul.shape[2], ul.shape[3])  # shape: [B, F, H, W]
+            ul = ul + cond_proj  # fuse condition before final output
+    
         x_out = self.nin_out(F.elu(ul))
 
         assert len(u_list) == len(ul_list) == 0, pdb.set_trace()
