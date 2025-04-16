@@ -9,7 +9,7 @@ import csv
 
 # Setup
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model_path = "Resnet_models/resnet18_cpen455_199.pth"  # change if needed
+model_path = "models/resnet18_cpen455_199.pth"  
 batch_size = 64
 
 # Transforms
