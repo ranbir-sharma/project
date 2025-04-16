@@ -51,8 +51,15 @@ if __name__ == "__main__":
 
     #TODO: Begin of your code
     #Load your model and generate images in the gen_data_dir, feel free to modify the model
-    model = PixelCNN(nr_resnet=3, nr_filters=80, input_channels=3, nr_logistic_mix=5)
+    model = PixelCNN(nr_resnet=3, nr_filters=80, input_channels=3, nr_logistic_mix=5,
+                     num_classes=len(my_bidict), embedding_dim=embedding_dim)
     model = model.to(device)
+    model_path = os.path.join(os.path.dirname(__file__), 'models/conditional_pixelcnn.pth')
+    if os.path.exists(model_path):
+        model.load_state_dict(torch.load(model_path))
+        print('model parameters loaded')
+    else:
+        raise FileNotFoundError(f"Model file not found at {model_path}")
     model = model.eval()
     #End of your code
     
